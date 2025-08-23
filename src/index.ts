@@ -1,16 +1,32 @@
+import { serve } from '@hono/node-server';
+import { Hono } from 'hono';
 import { env } from '@/env';
 import { logger } from '@/logger';
 
 logger.info(`Starting up in ${env.NODE_ENV} mode`);
 
+const app = new Hono();
+app.get('/', (c) => c.text('Hi'));
+
+const server = serve(
+  {
+    fetch: app.fetch,
+    hostname: env.HOST,
+    port: env.PORT,
+  },
+  (info) => {
+    logger.info(`Server is running at http://${env.HOST}:${info.port}`);
+  },
+);
+
 const onCloseSignal = () => {
   logger.info('sigint received, shutting down');
 
-  setTimeout(() => process.exit(1), 10000).unref(); // Force shutdown after timeout
+  // Force shutdown after timeout
+  setTimeout(() => process.exit(1), 10000).unref();
 
-  // Do some cleanup here
-
-  process.exit(0); // Exit gracefully
+  // Graceful shutdown
+  server.close(() => process.exit(0));
 };
 
 process.on('SIGINT', onCloseSignal);

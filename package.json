@@ -20,7 +20,9 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@hono/node-server": "^1.19.0",
     "dotenv": "^17.2.1",
+    "hono": "^4.9.4",
     "pino": "^9.9.0",
     "zod": "^4.0.17"
   },
