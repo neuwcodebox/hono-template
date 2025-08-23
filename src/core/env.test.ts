@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { env } from '@/env';
+import { env } from '@/core/env';
 
 describe('env', () => {
   it('should have NODE_ENV set to test in test environment', () => {

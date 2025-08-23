@@ -1,12 +1,33 @@
 import { serve } from '@hono/node-server';
-import { Hono } from 'hono';
-import { env } from '@/env';
-import { logger } from '@/logger';
+import { swaggerUI } from '@hono/swagger-ui';
+import { OpenAPIHono } from '@hono/zod-openapi';
+import { env } from '@/core/env';
+import { logger } from '@/core/logger';
+import { setSecuritySchemes } from './view/docs/security-schemes';
+import { corsMiddleware } from './view/middleware/cors.middleware';
 
 logger.info(`Starting up in ${env.NODE_ENV} mode`);
 
-const app = new Hono();
+const app = new OpenAPIHono();
+
+if (env.CORS === 1) {
+  app.use(corsMiddleware);
+}
+
 app.get('/', (c) => c.text('Hi'));
+
+// Swagger
+if (env.SWAGGER === 1) {
+  setSecuritySchemes(app);
+  app.doc('/api/docs', {
+    openapi: '3.0.0',
+    info: {
+      version: '1.0.0',
+      title: 'API',
+    },
+  });
+  app.get('/api-docs', swaggerUI({ url: '/api/docs' }));
+}
 
 const server = serve(
   {
